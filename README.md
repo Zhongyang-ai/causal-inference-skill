@@ -92,18 +92,36 @@ python3 skills/uplift-modeling/example.py
 用 aipw-causal-inference skill，用双稳健估计这个投放的 ATE，并做 cross-fitting。
 ```
 
+## 案例研究（marketing 实战）
+
+`cases/` 下提供两个**端到端的券商 marketing 因果推断案例**:从模拟数据 → 调用方法 → 产出业务报告,展示在「无法做 A/B 测试」时如何用因果推断校正选择偏差、还原真实效果。每个案例都含一个可直接运行的 `analysis.py`(合成数据,估计值已对照设定真值验证)和一份面向业务方的中文报告 `REPORT.md`。
+
+| 案例 | 业务问题 | 用到的方法 | 核心结论(模拟数据) |
+| --- | --- | --- | --- |
+| [入金返券活动](cases/case1-deposit-promotion/REPORT.md) | "入金满 $500 + 3 笔交易得 $20 券"活动对「注册→首次入金」转化的真实增量(用户自选择报名,无法 AB) | **PSM**(主,ATT)+ **IPW** + **AIPW** 三角验证 | 朴素估计 27.68pp **高估约 17pp**;三方法校正后真实增量约 **9.4~11.4pp**(真值 10.30pp,CI 全覆盖) |
+| [Retargeting 广告](cases/case2-retargeting-ads/REPORT.md) | 向"注册未入金"用户定向投放重定向广告的真实效果 + 该向谁投(广告系统按活跃度选人,无法 AB) | **AIPW**(主,ATE)+ **IPW** 对照 + **Uplift**(去混淆后做 targeting) | 朴素 16.70pp **高估约 2 倍**;AIPW 校正后 **9.25pp**(真值 8.29pp);Uplift 成功排序(分桶真实 CATE 单调,Qini 为正),识别出 persuadables 与应排除的 sleeping dogs |
+
+```bash
+# 直接运行任一案例的分析脚本
+python3 cases/case1-deposit-promotion/analysis.py
+python3 cases/case2-retargeting-ads/analysis.py
+```
+
 ## 仓库结构
 
 ```text
 .
 ├── README.md
-└── skills/
-    ├── causal-inference/        # 🧭 路由入口（SKILL.md + EXPLANATION.md）
-    ├── psm-causal-inference/
-    ├── ipw-causal-inference/
-    ├── aipw-causal-inference/
-    ├── did-causal-inference/
-    └── uplift-modeling/
+├── skills/
+│   ├── causal-inference/        # 🧭 路由入口（SKILL.md + EXPLANATION.md）
+│   ├── psm-causal-inference/
+│   ├── ipw-causal-inference/
+│   ├── aipw-causal-inference/
+│   ├── did-causal-inference/
+│   └── uplift-modeling/
+└── cases/                       # marketing 实战案例(analysis.py + REPORT.md)
+    ├── case1-deposit-promotion/
+    └── case2-retargeting-ads/
 ```
 
 ## 方法间的关系
